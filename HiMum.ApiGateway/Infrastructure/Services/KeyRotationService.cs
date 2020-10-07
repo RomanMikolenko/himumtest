@@ -62,7 +62,7 @@ namespace HiMum.ApiGateway.Infrastructure.Services
 
             var result = _encryptionService.RotateKey(default).GetAwaiter().GetResult();
 
-            if (result.IsSucces)
+            if (result.IsSuccess)
             {
                 _logger.LogInformation("Key rotation completed successfully!");
             }

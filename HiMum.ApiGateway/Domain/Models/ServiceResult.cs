@@ -9,6 +9,6 @@ namespace HiMum.ApiGateway.Domain.Models
 
         public IList<ErrorDetail> Errors { get; set; }
 
-        public bool IsSucces => !Errors?.Any() ?? true;
+        public bool IsSuccess => !Errors?.Any() ?? true;
     }
 }
