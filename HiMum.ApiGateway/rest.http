@@ -1,1 +1,19 @@
-GET https://localhost:44363/weatherforecast HTTP/1.1
+POST https://localhost:44363/api/gateway/encrypt HTTP/1.1
+Content-Type: application/json
+
+{
+    "encryptData": "password"
+}
+
+###
+
+POST https://localhost:44363/api/gateway/decrypt HTTP/1.1
+Content-Type: application/json
+
+{
+    "decryptData": "*result from encrypt call*"
+}
+
+###
+
+GET https://localhost:44363/health HTTP/1.1

@@ -1,1 +1,23 @@
-GET https://localhost:44325/weatherforecast HTTP/1.1
+POST https://localhost:44325/api/security/encrypt HTTP/1.1
+Content-Type: application/json
+
+{
+    "encryptData": "password"
+}
+
+###
+
+POST https://localhost:44325/api/security/decrypt HTTP/1.1
+Content-Type: application/json
+
+{
+    "decryptData": "*result from encrypt call*"
+}
+
+###
+
+POST https://localhost:44325/api/security/rotate-key HTTP/1.1
+
+###
+
+GET https://localhost:44325/health HTTP/1.1
