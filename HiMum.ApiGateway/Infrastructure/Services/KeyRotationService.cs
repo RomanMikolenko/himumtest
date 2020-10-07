@@ -36,8 +36,9 @@ namespace HiMum.ApiGateway.Infrastructure.Services
         {
             _logger.LogInformation("Key Rotation Service running.");
 
-            _timer = new Timer(DoWork, null, TimeSpan.Zero,
-                TimeSpan.FromSeconds(_configuration.RotateTimeSeconds));
+            var interval = TimeSpan.FromSeconds(_configuration.RotateTimeSeconds);
+
+            _timer = new Timer(DoWork, null, interval, interval);
 
             return Task.CompletedTask;
         }

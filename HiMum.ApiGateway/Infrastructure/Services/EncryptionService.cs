@@ -1,6 +1,7 @@
 ﻿using HiMum.ApiGateway.Domain.Interfaces;
 using HiMum.ApiGateway.Domain.Models;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -22,85 +23,41 @@ namespace HiMum.ApiGateway.Infrastructure.Services
 
         public async Task<ServiceResult> EncryptData(string input, CancellationToken cancellationToken)
         {
-            var client = _clientFactory.CreateClient();
-            using (var content = new JsonContent(new EncryptModel
+            try
             {
-                EncryptData = input
-            }))
-            {
-                var response = await client.PostAsync($"{_configuration.Url}/encrypt", content, cancellationToken);
-                var result = await ReadResponse(response);
+                var client = _clientFactory.CreateClient();
+                using (var content = new JsonContent(new EncryptModel
+                {
+                    EncryptData = input
+                }))
+                {
+                    var response = await client.PostAsync($"{_configuration.Url}/encrypt", content, cancellationToken);
+                    var result = await ReadResponse(response);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    return new ServiceResult
+                    if (response.IsSuccessStatusCode)
                     {
-                        Result = result
-                    };
-                }
-                else
-                {
-                    return new ServiceResult
-                    {
-                        Errors = new List<ErrorDetail>
-                    {
-                        new ErrorDetail
+                        return new ServiceResult
                         {
-                            Message = $"Cannot encrypt input string: {input}. Encryption service responded with unsuccessful code: {response.StatusCode}",
-                            Details = result
-                        }
+                            Result = result
+                        };
                     }
-                    };
-                }
-            }               
-        }
-
-        public async Task<ServiceResult> DecryptData(string input, CancellationToken cancellationToken)
-        {
-            var client = _clientFactory.CreateClient();
-            using (var content = new JsonContent(new DecryptModel
-            {
-                DecryptData = input
-            }))
-            {
-                var response = await client.PostAsync($"{_configuration.Url}/decrypt", content, cancellationToken);
-                var result = await ReadResponse(response);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    return new ServiceResult
+                    else
                     {
-                        Result = result
-                    };
-                }
-                else
-                {
-                    return new ServiceResult
-                    {
-                        Errors = new List<ErrorDetail>
-                    {
-                        new ErrorDetail
+                        return new ServiceResult
                         {
-                            Message = $"Cannot decrypt input string: {input}. Encryption service responded with unsuccessful code: {response.StatusCode}",
-                            Details = result
-                        }
+                            Errors = new List<ErrorDetail>
+                            {
+                                new ErrorDetail
+                                {
+                                    Message = $"Cannot encrypt input string: {input}. Encryption service responded with unsuccessful code: {response.StatusCode}",
+                                    Details = result
+                                }
+                            }
+                        };
                     }
-                    };
                 }
-            }           
-        }
-
-        public async Task<ServiceResult> RotateKey(CancellationToken cancellationToken)
-        {
-            var client = _clientFactory.CreateClient();
-            var response = await client.PostAsync($"{_configuration.Url}/rotate-key", null, cancellationToken);
-            var result = await ReadResponse(response);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return new ServiceResult();
             }
-            else
+            catch (Exception ex)
             {
                 return new ServiceResult
                 {
@@ -108,8 +65,103 @@ namespace HiMum.ApiGateway.Infrastructure.Services
                     {
                         new ErrorDetail
                         {
-                            Message = $"Cannot rotate key. Encryption service responded with unsuccessful code: {response.StatusCode}",
-                            Details = result
+                            Message = "Cannot establish connection",
+                            Details = ex.Message
+                        }
+                    }
+                };
+            }                      
+        }
+
+        public async Task<ServiceResult> DecryptData(string input, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var client = _clientFactory.CreateClient();
+                using (var content = new JsonContent(new DecryptModel
+                {
+                    DecryptData = input
+                }))
+                {
+                    var response = await client.PostAsync($"{_configuration.Url}/decrypt", content, cancellationToken);
+                    var result = await ReadResponse(response);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return new ServiceResult
+                        {
+                            Result = result
+                        };
+                    }
+                    else
+                    {
+                        return new ServiceResult
+                        {
+                            Errors = new List<ErrorDetail>
+                            {
+                                new ErrorDetail
+                                {
+                                    Message = $"Cannot decrypt input string: {input}. Encryption service responded with unsuccessful code: {response.StatusCode}",
+                                    Details = result
+                                }
+                            }
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult
+                {
+                    Errors = new List<ErrorDetail>
+                    {
+                        new ErrorDetail
+                        {
+                            Message = "Cannot establish connection",
+                            Details = ex.Message
+                        }
+                    }
+                };
+            }
+        }
+
+        public async Task<ServiceResult> RotateKey(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var client = _clientFactory.CreateClient();
+                var response = await client.PostAsync($"{_configuration.Url}/rotate-key", null, cancellationToken);
+                var result = await ReadResponse(response);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return new ServiceResult();
+                }
+                else
+                {
+                    return new ServiceResult
+                    {
+                        Errors = new List<ErrorDetail>
+                        {
+                            new ErrorDetail
+                            {
+                                Message = $"Cannot rotate key. Encryption service responded with unsuccessful code: {response.StatusCode}",
+                                Details = result
+                            }
+                        }
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResult
+                {
+                    Errors = new List<ErrorDetail>
+                    {
+                        new ErrorDetail
+                        {
+                            Message = "Cannot establish connection",
+                            Details = ex.Message
                         }
                     }
                 };
